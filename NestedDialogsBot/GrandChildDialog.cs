@@ -14,7 +14,8 @@ namespace NestedDialogsBot
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext outerDc, object options = null,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            await outerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(GrandChildDialog)}-{nameof(BeginDialogAsync)}"));
+            var innerDc = CreateChildContext(outerDc);
+            await innerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(GrandChildDialog)}-{nameof(BeginDialogAsync)}"), cancellationToken);
             return EndOfTurn;
         }
 
@@ -22,33 +23,13 @@ namespace NestedDialogsBot
             DialogContext outerDc,
             CancellationToken cancellationToken = default)
         {
-            var innerMostDc = GetInnerMostDialogContext(outerDc);
-            await outerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(GrandChildDialog)}-{nameof(ContinueDialogAsync)}"));
+            var innerDc = CreateChildContext(outerDc);
+            await outerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(GrandChildDialog)}-{nameof(ContinueDialogAsync)}"), cancellationToken);
             
             //Ending the inner most dialog
             //Expected result: ChildDialog-ResumeDialog
-            await innerMostDc.EndDialogAsync();
+            await innerDc.EndDialogAsync(cancellationToken: cancellationToken);
             return EndOfTurn;
-        }
-        
-        /// <summary>
-        /// Retrieve inner most DialogContext
-        /// </summary>
-        /// <param name="outerDc"></param>
-        /// <returns></returns>
-        private DialogContext GetInnerMostDialogContext(DialogContext outerDc)
-        {
-            if(outerDc.Child is null)
-            {
-                return outerDc;
-            }
-
-            if(outerDc.Child.ActiveDialog is null)
-            {
-                return outerDc;
-            }
-			
-            return GetInnerMostDialogContext(outerDc.Child);
         }
     }
 }

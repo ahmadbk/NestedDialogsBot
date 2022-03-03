@@ -15,7 +15,8 @@ namespace NestedDialogsBot
         public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext outerDc, object options = null,
             CancellationToken cancellationToken = default)
         {
-            await outerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(ChildDialog)}-{nameof(BeginDialogAsync)}"));
+            var innerDc = CreateChildContext(outerDc);
+            await innerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(ChildDialog)}-{nameof(BeginDialogAsync)}"), cancellationToken);
             return EndOfTurn;
         }
 
@@ -24,8 +25,8 @@ namespace NestedDialogsBot
             CancellationToken cancellationToken = default)
         {
             var innerDc = CreateChildContext(outerDc);
-            await innerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(ChildDialog)}-{nameof(ContinueDialogAsync)}"));
-            await innerDc.BeginDialogAsync(nameof(GrandChildDialog));
+            await innerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(ChildDialog)}-{nameof(ContinueDialogAsync)}"), cancellationToken);
+            await innerDc.BeginDialogAsync(nameof(GrandChildDialog), cancellationToken: cancellationToken);
             return EndOfTurn;
         }
 
@@ -35,8 +36,8 @@ namespace NestedDialogsBot
             object result = null,
             CancellationToken cancellationToken = default)
         {
-            await outerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(ChildDialog)}-{nameof(ResumeDialogAsync)}"));
-            await outerDc.EndDialogAsync();
+            await outerDc.Context.SendActivityAsync(MessageFactory.Text($"{nameof(ChildDialog)}-{nameof(ResumeDialogAsync)}"), cancellationToken);
+            await outerDc.EndDialogAsync(cancellationToken: cancellationToken);
             return EndOfTurn;
         }
     }

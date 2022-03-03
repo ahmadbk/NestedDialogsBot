@@ -76,7 +76,7 @@ namespace NestedDialogsBot
         {
             // Create a dialog context
             var dc = await Dialogs.CreateContextAsync(turnContext);
-            var innerMostDialogContext = GetInnerMostDialogContext(dc);
+            var innerMostDialogContext = BotFrameworkHelper.GetInnerMostDialogContext(dc);
             var dialogResult = await innerMostDialogContext.ContinueDialogAsync();
 
             // Handle Message activity type, which is the main activity type for shown within a conversational interface
@@ -113,25 +113,5 @@ namespace NestedDialogsBot
                 await turnContext.SendActivityAsync($"{turnContext.Activity.Type} event detected");
             }
         }
-        
-        /// <summary>
-        /// Retrieve inner most DialogContext
-        /// </summary>
-        /// <param name="outerDc"></param>
-        /// <returns></returns>
-        private static DialogContext GetInnerMostDialogContext(DialogContext outerDc)
-        {
-            if(outerDc.Child is null)
-            {
-                return outerDc;
-            }
-
-            if(outerDc.Child.ActiveDialog is null)
-            {
-                return outerDc;
-            }
-			
-            return GetInnerMostDialogContext(outerDc.Child);
-        }	
     }
 }
